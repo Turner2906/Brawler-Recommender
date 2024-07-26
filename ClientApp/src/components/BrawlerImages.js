@@ -68,7 +68,7 @@ const brawlerNames = [
   'Poco',
   'Rico',
   'Rosa',
-  'RT',
+  'R-T',
   'Ruffs',
   'Sam',
   'Sandy',
@@ -86,7 +86,7 @@ const brawlerNames = [
 
 
 const BrawlerPortraitArr = brawlerNames.map((name) => {
-  const cleanName = name.replace(/[^a-zA-Z0-9&]/g, '');
+  const cleanName = name.replace(/[^a-zA-Z0-9&-]/g, '');
   return {
     name: name,
     imageId: require(`../images/brawlerPortrait/${cleanName.toLowerCase()}_portrait.png`),

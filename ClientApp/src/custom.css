@@ -59,3 +59,7 @@ code {
   font-weight: bold;
   margin: 0;
 }
+
+.locked {
+  filter: grayscale(100%);
+}

@@ -20,11 +20,24 @@ export class BrawlerDisplay extends Component {
     this.setState({ searchQuery: e.target.value });
   };
   
+  isBrawlerUnlocked = (name) => {
+    const { brawlers } = this.state;
+    return brawlers.some(brawler => brawler.name === name.toUpperCase());
+  };
+
   renderBrawlerTable() {
     const { searchQuery } = this.state;
     const searchedBrawlers = BrawlerPortraitArr.filter(brawler =>
       brawler.name.toLowerCase().startsWith(searchQuery.toLowerCase())
     );
+
+    const unlockedBrawlers = searchedBrawlers.filter(brawler =>
+      this.isBrawlerUnlocked(brawler.name)
+    );
+    const lockedBrawlers = searchedBrawlers.filter(brawler =>
+      !this.isBrawlerUnlocked(brawler.name)
+    );
+    const sortedBrawlers = unlockedBrawlers.concat(lockedBrawlers);
 
     return (
       <div>
@@ -36,16 +49,20 @@ export class BrawlerDisplay extends Component {
           style={{ marginBottom: '20px', padding: '10px', width: '100%', boxSizing: 'border-box' }}
         />
         <div className="brawler-card-list">
-          {searchedBrawlers.map((brawler, index) => (
-            <div key={index} className="brawler-card">
-              <div className="brawler-image-container">
-                <img src={brawler.imageId} alt={brawler.name} className="brawler-image" />
+          {sortedBrawlers.map((brawler, index) => {
+            const isUnlocked = this.isBrawlerUnlocked(brawler.name);
+            const cardClass = isUnlocked ? "brawler-card" : "brawler-card brawler-card locked";
+            return (
+              <div key={index} className={cardClass}>
+                <div className="brawler-image-container">
+                  <img src={brawler.imageId} alt={brawler.name} className="brawler-image" />
+                </div>
+                <div className="brawler-info">
+                  <p className="brawler-name">{brawler.name}</p>
+                </div>
               </div>
-              <div className="brawler-info">
-                <p className="brawler-name">{brawler.name}</p>
-              </div>
-            </div>
-          ))}
+            );
+        })}
         </div>
       </div>
     );
@@ -68,8 +85,7 @@ export class BrawlerDisplay extends Component {
   async populateBrawlerData() {
     const response = await fetch('api/brawlers/%2329UYJJ2J');
     const data = await response.json();
-    console.log("Data:", data);
     console.log("Brawlers:", data.brawlers)
-    this.setState({ brawlers: data, loading: false });
+    this.setState({ brawlers: data.brawlers, loading: false });
   }
 }
