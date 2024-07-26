@@ -1,42 +1,48 @@
-import React, { Component} from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import BrawlerPortraitArr from './BrawlerImages';
 
-export class BrawlerDisplay extends Component {
-  static displayName = BrawlerDisplay.name;
+export const BrawlerDisplay = () => {
+  const [brawlers, setBrawlers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
 
-  constructor(props) {
-    super(props);
-    this.state = { 
-      brawlers: [], 
-      loading: true,
-      searchQuery: ""};
-  }
+  useEffect(() => {
+    const brawlTag = searchParams.get('tag');
+    if (brawlTag) {
+      populateBrawlerData(brawlTag);
+    }
+  }, [searchParams]);
 
-  componentDidMount() {
-    this.populateBrawlerData();
-  }
-
-  handleSearchChange = (e) => {
-    this.setState({ searchQuery: e.target.value });
+  const populateBrawlerData = async (brawlTag) => {
+    const response = await fetch(`api/brawlers/${encodeURIComponent(brawlTag)}`);
+    const data = await response.json();
+    setBrawlers(data.brawlers);
+    setLoading(false);
   };
-  
-  isBrawlerUnlocked = (name) => {
-    const { brawlers } = this.state;
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const isBrawlerUnlocked = (name) => {
     return brawlers.some(brawler => brawler.name === name.toUpperCase());
   };
 
-  renderBrawlerTable() {
-    const { searchQuery } = this.state;
+  const renderBrawlerTable = () => {
     const searchedBrawlers = BrawlerPortraitArr.filter(brawler =>
       brawler.name.toLowerCase().startsWith(searchQuery.toLowerCase())
     );
 
     const unlockedBrawlers = searchedBrawlers.filter(brawler =>
-      this.isBrawlerUnlocked(brawler.name)
+      isBrawlerUnlocked(brawler.name)
     );
+
     const lockedBrawlers = searchedBrawlers.filter(brawler =>
-      !this.isBrawlerUnlocked(brawler.name)
+      !isBrawlerUnlocked(brawler.name)
     );
+
     const sortedBrawlers = unlockedBrawlers.concat(lockedBrawlers);
 
     return (
@@ -45,13 +51,13 @@ export class BrawlerDisplay extends Component {
           type="text"
           placeholder="Search Brawlers..."
           value={searchQuery}
-          onChange={this.handleSearchChange}
+          onChange={handleSearchChange}
           style={{ marginBottom: '20px', padding: '10px', width: '100%', boxSizing: 'border-box' }}
         />
         <div className="brawler-card-list">
           {sortedBrawlers.map((brawler, index) => {
-            const isUnlocked = this.isBrawlerUnlocked(brawler.name);
-            const cardClass = isUnlocked ? "brawler-card" : "brawler-card brawler-card locked";
+            const isUnlocked = isBrawlerUnlocked(brawler.name);
+            const cardClass = isUnlocked ? "brawler-card" : "brawler-card locked";
             return (
               <div key={index} className={cardClass}>
                 <div className="brawler-image-container">
@@ -62,30 +68,19 @@ export class BrawlerDisplay extends Component {
                 </div>
               </div>
             );
-        })}
+          })}
         </div>
       </div>
     );
-  }
+  };
 
-  render() {
-    let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : this.renderBrawlerTable();
+  return (
+    <div>
+      <h1 id="tabelLabel">Your Brawlers</h1>
+      <p>Should grey out brawlers you don't have</p>
+      {loading ? <p><em>Loading...</em></p> : renderBrawlerTable()}
+    </div>
+  );
+};
 
-    return (
-      <div>
-        <h1 id="tabelLabel" >Your Brawlers</h1>
-        <p>Should grey out brawlers you don't have</p>
-        {contents}
-      </div>
-    );
-  }
-
-  async populateBrawlerData() {
-    const response = await fetch('api/brawlers/%2329UYJJ2J');
-    const data = await response.json();
-    console.log("Brawlers:", data.brawlers)
-    this.setState({ brawlers: data.brawlers, loading: false });
-  }
-}
+export default BrawlerDisplay;
