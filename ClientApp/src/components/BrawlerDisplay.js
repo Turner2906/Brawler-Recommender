@@ -6,6 +6,8 @@ export const BrawlerDisplay = () => {
   const [brawlers, setBrawlers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [pageTitle, setPageTitle] = useState('');
+  const [userImage, setuserImage] = useState('');
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -18,7 +20,9 @@ export const BrawlerDisplay = () => {
   const populateBrawlerData = async (brawlTag) => {
     const response = await fetch(`api/brawlers/${encodeURIComponent(brawlTag)}`);
     const data = await response.json();
+    setPageTitle(data.name);
     setBrawlers(data.brawlers);
+    setuserImage(`https://cdn-old.brawlify.com/profile/${data.icon.id}.png`);
     setLoading(false);
   };
 
@@ -76,8 +80,11 @@ export const BrawlerDisplay = () => {
 
   return (
     <div>
-      <h1 id="tabelLabel">Your Brawlers</h1>
-      <p>Should grey out brawlers you don't have</p>
+      <h1 id="tabelLabel">
+        <img src={userImage} className="user-pfp" />
+        &nbsp;Hey {pageTitle}! Here are your brawlers
+      </h1>
+      <p>THATS YOU!</p>
       {loading ? <p><em>Loading...</em></p> : renderBrawlerTable()}
     </div>
   );

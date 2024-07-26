@@ -63,3 +63,9 @@ code {
 .locked {
   filter: grayscale(100%);
 }
+
+.user-pfp {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+} 
