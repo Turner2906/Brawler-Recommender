@@ -85,7 +85,9 @@ export const BrawlerDisplay = () => {
         &nbsp;Hey {pageTitle}! Here are your brawlers
       </h1>
       <p>THATS YOU!</p>
-      {loading ? <p><em>Loading...</em></p> : renderBrawlerTable()}
+      {loading ? (
+        <img src={require('../images/loading/barley_win.gif')} alt = "Loading... "/>) 
+        : renderBrawlerTable()}
     </div>
   );
 };
